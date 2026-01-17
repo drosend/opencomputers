@@ -6,7 +6,8 @@ local colors = require("colors")
 local sides = require("sides")
 
 local reactor = component.br_reactor
-local rs = component.redstone
+local reactor_rs = component.proxy(component.get("9f27"))
+local quarry_rs = component.proxy(component.get("33c3"))
 local gpu = component.gpu
 
 local HEAT_UPPER_LIMIT = 1000
@@ -15,8 +16,8 @@ local QUARRY_DISABLE_LIMIT = 25
 local QUARRY_ENABLE_LIMIT = 50
 
 local direction = {
-    UP = -5,
-    DOWN = 5
+    UP = -1,
+    DOWN = 1
 }
 
 local status = {
@@ -33,17 +34,22 @@ end
 local function checkFuel()
     local total = reactor.getFuelAmountMax()
     local current = reactor.getFuelAmount()
-    local remaining = math.floor(((current / total) * 100))
+    local remaining = math.floor((current / total) * 100)
     return remaining
 end
 
 -- Moves rods by specified amount
 local function moveRods(vector)
+    -- Only for logging, reactor method itself is broken
     local all = reactor.getControlRodsLevels()
     local level = math.floor(all[0]) -- Pick any rod because they should all be synchonized
     local newLevel = math.floor((level + vector))
-    reactor.setAllControlRodLevels(newLevel)
-    print("MOVE ALL -> FROM: ".. vector .."TO: ".. newLevel)
+
+    local signal = reactor_rs.getOutput(sides.west)
+    local newSignal = math.floor(signal + vector)
+
+    reactor_rs.setOutput(sides.west, newSignal)
+    print("MOVE ALL -> FROM: ".. level .."TO: ".. newLevel)
 end
 
 -- Inspect the redstone status on the computer itself
@@ -57,12 +63,12 @@ end
 -- Will enable or disable the quarry
 local function toggleQuarry(nextState)
     if nextState == status.DISABLE then
-        rs.setOutput(sides.west, 0)
+        quarry_rs.setOutput(sides.west, 0)
         gpu.setForeground(colors.red)
         print("QUARRY DISABLED " .. os.date())
         gpu.setForeground(colors.white)
     elseif nextState == status.ENABLE then
-        rs.setOutput(sides.west, 15)
+        quarry_rs.setOutput(sides.west, 15)
         gpu.setForeground(colors.green)
         print("QUARRY ENABLED " .. os.date())
         gpu.setForeground(colors.white)
