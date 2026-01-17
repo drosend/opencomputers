@@ -9,6 +9,11 @@ local reactor = component.br_reactor
 local rs = component.redstone
 local gpu = component.gpu
 
+local HEAT_UPPER_LIMIT = 1000
+local HEAT_LOWER_LIMIT = 900
+local QUARRY_DISABLE_LIMIT = 25
+local QUARRY_ENABLE_LIMIT = 50
+
 local direction = {
     UP = -5,
     DOWN = 5
@@ -28,14 +33,14 @@ end
 local function checkFuel()
     local total = reactor.getFuelAmountMax()
     local current = reactor.getFuelAmount()
-    local remaining = math.floor((current / total) * 100)
+    local remaining = math.floor(((current / total) * 100))
     return remaining
 end
 
 -- Moves rods by specified amount
 local function moveRods(vector)
     local level = math.floor(reactor.getControlRodLevel(1)) -- Pick any rod because they should all be synchonized
-    local newLevel = math.floor(level + vector)
+    local newLevel = math.floor((level + vector))
     reactor.setAllControlRodLevels(newLevel)
     print("MOVE ALL -> FROM: ".. vector .."TO: ".. newLevel)
 end
@@ -74,18 +79,18 @@ while true do
         local quarryStatus = checkQuarryStatus()
 
         -- Controlling the reactor
-        if currentHeat > 1000 then
+        if currentHeat > HEAT_UPPER_LIMIT then
             moveRods(direction.DOWN)
-        elseif currentHeat < 900 then
+        elseif currentHeat < HEAT_LOWER_LIMIT then
             moveRods(direction.UP)
         end
 
         -- Disable the quarry if the fuel is less than 25% and enable when the fuel is back to 50% (dampen)
-        if currentFuel < 25 then
+        if currentFuel < QUARRY_DISABLE_LIMIT then
             if quarryStatus == status.ENABLE then
                 toggleQuarry(status.DISABLE)
             end
-        elseif currentFuel > 50 then
+        elseif currentFuel > QUARRY_ENABLE_LIMIT then
             if quarryStatus == status.DISABLE then
                 toggleQuarry(status.ENABLE)
             end
