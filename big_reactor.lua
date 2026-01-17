@@ -39,7 +39,8 @@ end
 
 -- Moves rods by specified amount
 local function moveRods(vector)
-    local level = math.floor(reactor.getControlRodLevel(1)) -- Pick any rod because they should all be synchonized
+    local all = reactor.getControlRodsLevels()
+    local level = math.floor(all[0]) -- Pick any rod because they should all be synchonized
     local newLevel = math.floor((level + vector))
     reactor.setAllControlRodLevels(newLevel)
     print("MOVE ALL -> FROM: ".. vector .."TO: ".. newLevel)
