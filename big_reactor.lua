@@ -6,8 +6,8 @@ local colors = require("colors")
 local sides = require("sides")
 
 local reactor = component.br_reactor
-local reactor_rs = component.proxy(component.get("9f27"))
-local quarry_rs = component.proxy(component.get("33c3"))
+local reactor_rs = component.proxy(component.get("5c8f"))
+local quarry_rs = component.proxy(component.get("1efd"))
 local gpu = component.gpu
 
 local HEAT_UPPER_LIMIT = 1000
@@ -38,18 +38,24 @@ local function checkFuel()
     return remaining
 end
 
+-- Send a quick redstone signal
+local function pulse(port, side)
+    port.setOutput(side, 15)
+    os.sleep(0.1)
+    port.setOutput(side, 0)
+end
+
 -- Moves rods by specified amount
 local function moveRods(vector)
-    -- Only for logging, reactor method itself is broken
-    local all = reactor.getControlRodsLevels()
-    local level = math.floor(all[1]) -- Pick any rod because they should all be synchonized
+    if vector == direction.UP then
+        pulse(reactor_rs, sides.west)
+    elseif vector == direction.DOWN then
+        pulse(reactor_rs, sides.east)
+    end
 
-    local signal = reactor_rs.getOutput(sides.west)
-    local newSignal = math.floor(signal + vector)
-    reactor_rs.setOutput(sides.west, newSignal)
-    
+    local all = reactor.getControlRodsLevels()
     local newLevel = math.floor(all[1])
-    print("MOVE ALL -> FROM: ".. level .." TO: ".. newLevel)
+    print("MOVED -> ".. vector .." TO: ".. newLevel)
 end
 
 -- Inspect the redstone status on the computer itself
@@ -63,12 +69,12 @@ end
 -- Will enable or disable the quarry
 local function toggleQuarry(nextState)
     if nextState == status.DISABLE then
-        quarry_rs.setOutput(sides.west, 0)
+        quarry_rs.setOutput(sides.top, 0)
         gpu.setForeground(colors.red)
         print("QUARRY DISABLED " .. os.date())
         gpu.setForeground(colors.white)
     elseif nextState == status.ENABLE then
-        quarry_rs.setOutput(sides.west, 15)
+        quarry_rs.setOutput(sides.top, 15)
         gpu.setForeground(colors.green)
         print("QUARRY ENABLED " .. os.date())
         gpu.setForeground(colors.white)
