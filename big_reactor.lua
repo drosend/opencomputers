@@ -2,7 +2,6 @@
 -- Also will disable the quantum quarry if the fuel drops below 25%
 
 local component = require("component")
-local colors = require("colors")
 local sides = require("sides")
 
 local reactor = component.br_reactor
@@ -70,14 +69,14 @@ end
 local function toggleQuarry(nextState)
     if nextState == status.DISABLE then
         quarry_rs.setOutput(sides.top, 0)
-        gpu.setForeground(colors.red)
+        gpu.setForeground(0xFF0000)
         print("QUARRY DISABLED " .. os.date())
-        gpu.setForeground(colors.white)
+        gpu.setForeground(0xFFFFFF)
     elseif nextState == status.ENABLE then
         quarry_rs.setOutput(sides.top, 15)
-        gpu.setForeground(colors.green)
+        gpu.setForeground(0x00FF00)
         print("QUARRY ENABLED " .. os.date())
-        gpu.setForeground(colors.white)
+        gpu.setForeground(0xFFFFFF)
     end
 end
 
@@ -109,9 +108,9 @@ while true do
             end
         end
     else
-        gpu.setForeground(colors.red)
+        gpu.setForeground(0xFF0000)
         print("REACTOR OFFLINE!")
-        gpu.setForeground(colors.white)
+        gpu.setForeground(0xFFFFFF)
     end
 
     os.sleep(5)
