@@ -16,8 +16,8 @@ local QUARRY_DISABLE_LIMIT = 25
 local QUARRY_ENABLE_LIMIT = 50
 
 local direction = {
-    UP = -1,
-    DOWN = 1
+    UP = 1,
+    DOWN = -1
 }
 
 local status = {
@@ -42,19 +42,19 @@ end
 local function moveRods(vector)
     -- Only for logging, reactor method itself is broken
     local all = reactor.getControlRodsLevels()
-    local level = math.floor(all[0]) -- Pick any rod because they should all be synchonized
-    local newLevel = math.floor((level + vector))
+    local level = math.floor(all[1]) -- Pick any rod because they should all be synchonized
 
     local signal = reactor_rs.getOutput(sides.west)
     local newSignal = math.floor(signal + vector)
-
     reactor_rs.setOutput(sides.west, newSignal)
-    print("MOVE ALL -> FROM: ".. level .."TO: ".. newLevel)
+    
+    local newLevel = math.floor(all[1])
+    print("MOVE ALL -> FROM: ".. level .." TO: ".. newLevel)
 end
 
 -- Inspect the redstone status on the computer itself
 local function checkQuarryStatus()
-    if rs.getOutput(sides.west) == 0 then
+    if quarry_rs.getOutput(sides.west) == 0 then
         return status.DISABLE
     end
     return status.ENABLE
