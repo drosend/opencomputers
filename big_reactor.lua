@@ -3,6 +3,7 @@
 
 local component = require("component")
 local sides = require("sides")
+local term = require("term")
 
 local reactor = component.br_reactor
 local reactor_rs = component.proxy(component.get("5c8f"))
@@ -46,20 +47,20 @@ end
 
 -- Moves rods by specified amount
 local function moveRods(vector)
-    if vector == direction.UP then
+    if vector == direction.DOWN then
         pulse(reactor_rs, sides.west)
-    elseif vector == direction.DOWN then
+    elseif vector == direction.UP then
         pulse(reactor_rs, sides.east)
     end
 
     local all = reactor.getControlRodsLevels()
     local newLevel = math.floor(all[1])
-    print("MOVED -> ".. vector .." TO: ".. newLevel)
+    print("MOVED TO: ".. newLevel)
 end
 
 -- Inspect the redstone status on the computer itself
 local function checkQuarryStatus()
-    if quarry_rs.getOutput(sides.west) == 0 then
+    if quarry_rs.getOutput(sides.top) == 0 then
         return status.DISABLE
     end
     return status.ENABLE
@@ -81,6 +82,9 @@ local function toggleQuarry(nextState)
 end
 
 -- Main loop
+
+term.clear()
+
 while true do
 
     if reactor.getActive() == true then
@@ -110,6 +114,7 @@ while true do
     else
         gpu.setForeground(0xFF0000)
         print("REACTOR OFFLINE!")
+        term.clear()
         gpu.setForeground(0xFFFFFF)
     end
 
