@@ -98,9 +98,9 @@ while true do
     -- Disable the reactor if the power level is >95% and renable when it is <25%
     local currentPower = checkPower()
 
-    if currentPower < 95 then
+    if currentPower > 95 then
         reactor.setActive(false)
-    elseif currentPower > 25 then
+    elseif currentPower < 25 then
         reactor.setActive(true)
     end
 
