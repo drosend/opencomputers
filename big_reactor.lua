@@ -130,8 +130,8 @@ while true do
         end
     else
         gpu.setForeground(0xFF0000)
-        print("REACTOR OFFLINE!")
         term.clear()
+        print("REACTOR OFFLINE!")
         gpu.setForeground(0xFFFFFF)
     end
 
