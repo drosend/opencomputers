@@ -14,6 +14,7 @@ local HEAT_UPPER_LIMIT = 1000
 local HEAT_LOWER_LIMIT = 900
 local QUARRY_DISABLE_LIMIT = 25
 local QUARRY_ENABLE_LIMIT = 50
+local TOTAL_POWER = 10000000
 
 local direction = {
     UP = 1,
@@ -24,6 +25,13 @@ local status = {
     DISABLE = 0,
     ENABLE = 1
 }
+
+-- Returns percent of total power in reactor battery
+local function checkPower()
+    local current = reactor.getEnergyStored()
+    local percent = math.floor(( current / TOTAL_POWER ) * 100)
+    return percent
+end
 
 -- Returns total heat value integer
 local function checkHeat()
@@ -86,6 +94,15 @@ end
 term.clear()
 
 while true do
+
+    -- Disable the reactor if the power level is >95% and renable when it is <25%
+    local currentPower = checkPower()
+
+    if currentPower < 95 then
+        reactor.setActive(false)
+    elseif currentPower > 25 then
+        reactor.setActive(true)
+    end
 
     if reactor.getActive() == true then
 
